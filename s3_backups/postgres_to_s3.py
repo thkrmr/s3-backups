@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from boto.s3 import connect_to_region
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 from boto.exception import S3ResponseError
@@ -61,7 +62,12 @@ def backup():
 
         try:
             bucket = conn.get_bucket(S3_BUCKET_NAME)
-        except S3ResponseError:
+            # Uggly fix to go around bug in boto https://github.com/boto/boto/issues/2207
+            bucket_location = bucket.get_location()
+            conn = connect_to_region(bucket_location, aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
+            bucket = conn.get_bucket(S3_BUCKET_NAME)
+        except S3ResponseError as e:
+            log.info("Error details: {}".format(e.message))
             sys.stderr.write("There is no bucket with the name \"" + S3_BUCKET_NAME + "\" in your Amazon S3 account\n")
             sys.stderr.write("Error: Please enter an appropriate bucket name and re-run the script\n")
             t2.close()
