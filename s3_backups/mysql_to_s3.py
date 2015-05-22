@@ -104,8 +104,9 @@ class archive(object):
                 # create a new key that puts the archive in a year/month sub
                 # directory if it's not in a year/month sub directory already
                 name_parts = key.name.split('/')
-                month = name_parts[-2]
-                year = name_parts[-3]
+                date_str = name_parts[-1].split('_')[-2]
+                month = date_str[4:6]
+                year = date_str[0:4]
                 new_key_name = key.name
                 if not re.match(r'[\d]{4}', year) and not re.match(r'[\d]{2}', month):
                     name_parts.insert(len(name_parts) - 1, "%d" % key.local_last_modified.year)
