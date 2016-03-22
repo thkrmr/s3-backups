@@ -6,7 +6,7 @@ import logging
 log = logging.getLogger('s3_backups')
 
 """
-The default schedule does the following ...
+The fouram schedule does the following ...
 - Keeps all archives for 7 days
 - Keeps 4 am backups for every other day for 30 days
 - Keeps the first day of the month forever
