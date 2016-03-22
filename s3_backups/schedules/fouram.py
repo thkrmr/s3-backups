@@ -42,7 +42,7 @@ def keep_file(key):
         return True
     elif timediff > ONE_WEEK and timediff < ONE_MONTH:
         if key.local_last_modified.hour != 4:
-            log.info("%s - Removing key \"%s\" because it's not a midnight backup and it's older than one week but less than a month" % (timediff, key.name))
+            log.info("%s - Removing key \"%s\" because it's not a 4 am backup and it's older than one week but less than a month" % (timediff, key.name))
             return False
         elif odd_even == 'even':
             log.info("%s - Removing key \"%s\" because it's older than one week but less than a month and not an even day." % (timediff, key.name))
