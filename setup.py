@@ -27,7 +27,7 @@ setup(
     package_data={'': ['LICENSE']},
     package_dir={'s3-backups': 's3-backups'},
     include_package_data=True,
-    install_requires=['boto>=2.9.4', 'python-dateutil==2.1'],
+    install_requires=['boto>=2.9.4', 'python-dateutil==2.1', 'filechunkio>=1.6'],
     license=open('LICENSE').read(),
     zip_safe=False,
     scripts=['s3_backups/postgres_to_s3.py', 's3_backups/redis_to_s3.py', 's3_backups/mysql_to_s3.py'],

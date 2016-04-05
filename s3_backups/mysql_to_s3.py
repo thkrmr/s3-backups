@@ -5,7 +5,11 @@ from boto.s3.key import Key
 from boto.exception import S3ResponseError
 from datetime import datetime
 from s3_backups.utils import ColoredFormatter, timeit
+from multiprocessing import Pool
+from filechunkio import FileChunkIO
+from multiprocessing import Pool
 from dateutil import tz
+
 
 import importlib
 import tarfile
@@ -13,9 +17,11 @@ import subprocess
 import tempfile
 import argparse
 import logging
+import math
 import sys
 import re
 import os
+
 
 log = logging.getLogger('s3_backups')
 
@@ -69,9 +75,38 @@ def backup():
             return
 
         # upload file to Amazon S3
-        k = Key(bucket)
-        k.key = key_name + FILENAME
-        k.set_contents_from_filename(t2.name)
+
+        transfer_file = t2.name
+
+        mb_limit = 512
+
+        st_size = os.stat(transfer_file).st_size
+        mb_size = st_size / 1e6
+
+        if mb_size < mb_limit:
+            k = Key(bucket)
+            k.key = key_name + FILENAME
+            k.set_contents_from_filename(transfer_file)
+        else:
+            key_name = key_name + FILENAME
+            mp = b.initiate_multipart_upload(key_name)
+
+            # mb in bytes
+            chunk_size = mb_limit * 1e6
+            chunk_count = int(math.ceil(st_size / float(chunk_size)))
+
+            for i in range(chunk_count):
+                offset = chunk_size * i
+                bytes = min(chunk_size, st_size - offset)
+                with FileChunkIO(transfer_file, 'r', offset=offset,
+                                 bytes=bytes) as fp:
+                    mp.upload_part_from_file(fp, part_num=i + 1)
+
+            if len(mp.get_all_parts()) == chunk_count:
+                mp.complete_upload()
+            else:
+                mp.cancel_upload()
+
         t2.close()
 
         log.info("Sucessfully uploaded the archive to Amazon S3")
