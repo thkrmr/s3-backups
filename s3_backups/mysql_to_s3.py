@@ -78,12 +78,12 @@ def backup():
 
         transfer_file = t2.name
 
-        mb_limit = 512
+        # 512 MiB
+        mb_limit = 536870912
 
         st_size = os.stat(transfer_file).st_size
-        mb_size = st_size / 1e6
 
-        if mb_size < mb_limit:
+        if st_size < mb_limit:
             k = Key(bucket)
             k.key = key_name + FILENAME
             k.set_contents_from_filename(transfer_file)
@@ -91,8 +91,7 @@ def backup():
             key_name = key_name + FILENAME
             mp = bucket.initiate_multipart_upload(key_name)
 
-            # mb in bytes
-            chunk_size = mb_limit * 1e6
+            chunk_size = mb_limit
             chunk_count = int(math.ceil(st_size / float(chunk_size)))
 
             for i in range(chunk_count):
