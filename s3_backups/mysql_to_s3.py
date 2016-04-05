@@ -89,7 +89,7 @@ def backup():
             k.set_contents_from_filename(transfer_file)
         else:
             key_name = key_name + FILENAME
-            mp = b.initiate_multipart_upload(key_name)
+            mp = bucket.initiate_multipart_upload(key_name)
 
             # mb in bytes
             chunk_size = mb_limit * 1e6
